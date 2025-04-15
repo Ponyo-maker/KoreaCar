@@ -1,5 +1,5 @@
 import express from "express";
-import cors from "cors"; // Import the CORS middleware
+import cors from "cors";
 import { db } from "./src/db.js";
 import { CarListing } from "./src/schema.js";
 import { eq } from "drizzle-orm";
@@ -12,12 +12,16 @@ app.use(cors());
 // Middleware to parse JSON requests
 app.use(express.json());
 
+// ✅ Root route to confirm server is working
+app.get("/", (req, res) => {
+  res.send("Server is working 🚀");
+});
+
 // API endpoint to handle form submissions (store data)
 app.post("/api/add-listing", async (req, res) => {
   try {
     const { pictures, videos, make, year, mileage, sellingPrice, fuelType, category } = req.body;
 
-    // Insert data into the database using Drizzle ORM
     await db.insert(CarListing).values({
       pictures,
       videos,
@@ -29,7 +33,7 @@ app.post("/api/add-listing", async (req, res) => {
       category,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      soldOut: false, // Default to not sold out
+      soldOut: false,
     });
 
     res.status(200).json({ message: "Listing added successfully!" });
@@ -42,12 +46,11 @@ app.post("/api/add-listing", async (req, res) => {
 // API endpoint to fetch all car listings
 app.get("/api/cars", async (req, res) => {
   try {
-    // Fetch all car listings from the database, sorted by createdAt in descending order
     const listings = await db
       .select()
       .from(CarListing)
-      .where(eq(CarListing.soldOut, false)) // Ensure `soldOut` is a valid column
-      .orderBy(CarListing.createdAt, "desc"); // Use the correct syntax for `orderBy`
+      .where(eq(CarListing.soldOut, false))
+      .orderBy(CarListing.createdAt, "desc");
 
     res.status(200).json(listings);
   } catch (error) {
