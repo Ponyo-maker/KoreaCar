@@ -21,7 +21,7 @@ function SoldOut() {
     }
     const soldOutCars = await response.json();
     console.log("Fetched Sold-Out Cars:", soldOutCars); // Debugging log
-    setSoldOutCars(soldOutCars);
+    setSoldOutCars(soldOutCars.reverse());
     setIsLoading(false);
   } catch (error) {
     console.error("Error fetching sold-out cars:", error);
