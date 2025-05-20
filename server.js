@@ -418,6 +418,59 @@ app.get("/car/:id", async (req, res) => {
     res.status(500).send("Server error.");
   }
 });
+app.get("/cardetails/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const car = await db
+      .select()
+      .from(CarListing)
+      .where(eq(CarListing.id, parseInt(id)))
+      .limit(1);
+
+    if (car.length === 0) {
+      return res.status(404).send("Car not found");
+    }
+
+    const carData = car[0];
+    const imageUrl = carData.pictures[0]; // Adjust if you use a different structure
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="Check out this ${carData.make} - ${carData.year} listed on Carvision!">
+        
+        <!-- OG Tags -->
+        <meta property="og:title" content="${carData.make} - ${carData.year} | Carvision" />
+        <meta property="og:description" content="Mileage: ${carData.mileage}km, Price: $${carData.sellingPrice}" />
+        <meta property="og:image" content="${imageUrl}" />
+        <meta property="og:url" content="https://carvisioni.com/cardetails/${id}" />
+        <meta property="og:type" content="website" />
+        
+        <!-- Fallback Twitter Card -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="${carData.make} - ${carData.year}" />
+        <meta name="twitter:description" content="Price: $${carData.sellingPrice}" />
+        <meta name="twitter:image" content="${imageUrl}" />
+        
+        <title>${carData.make} - ${carData.year} | Carvision</title>
+      </head>
+      <body>
+        <script>
+          window.location.href = "/cardetails/${id}";
+        </script>
+      </body>
+      </html>
+    `;
+
+    res.send(html);
+  } catch (error) {
+    console.error("Error rendering car detail page:", error);
+    res.status(500).send("Something went wrong");
+  }
+});
 
 // Serve the APK file
 app.get("/downloads/app.apk", (req, res) => {
