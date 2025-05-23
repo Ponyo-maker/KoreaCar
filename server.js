@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { db } from "./src/db.js"; // Import the database connection
-import { CarListing, AnonymousComments } from "./src/schema.js"; // Import the schema
+import { CarListing } from "./src/schema.js";
 import { eq } from "drizzle-orm";
 import path from "path";
 import { fileURLToPath } from "url";
